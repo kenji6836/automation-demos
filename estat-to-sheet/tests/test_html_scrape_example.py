@@ -42,6 +42,17 @@ class ListModeTest(unittest.TestCase):
         self.assertEqual(rows[0]["links"], "/a")
         self.assertEqual(rows[2]["links"], "/b;/c")
 
+    def test_omitted_li_end_tags_keep_items_in_their_section(self):
+        # </li> 省略のまま </ul>・次の見出し・次の <ul> が来ても、項目は元のセクションに残る
+        html = "<h2>A</h2><ul><li>one</ul><h2>B</h2><ul><li>two</ul>"
+        _, rows = hs.extract_list_items(html)
+        self.assertEqual([(r["section"], r["no"], r["text"]) for r in rows],
+                         [("A", 1, "one"), ("B", 1, "two")])
+        html = "<h2>A</h2><ul><li>one<li>two<ul><li>three</ul><h3>C</h3><ol><li>four</ol>"
+        _, rows = hs.extract_list_items(html)
+        self.assertEqual([(r["section"], r["text"]) for r in rows],
+                         [("A", "one"), ("A", "two"), ("A", "three"), ("C", "four")])
+
 
 class TableModeTest(unittest.TestCase):
     def test_tables_to_rows_pads_to_widest_row(self):

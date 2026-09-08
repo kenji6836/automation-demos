@@ -62,8 +62,12 @@ class ListItemExtractor(HTMLParser):
         if tag == "title":
             self._in_title = True
         elif tag in self.HEADINGS:
+            if self._item is not None:  # </li> 省略のまま次の見出しへ
+                self._flush_item()
             self._heading_tag = tag
             self._heading_buf = []
+        elif tag in ("ul", "ol") and self._item is not None:  # </li></ul> 省略で次のリストへ
+            self._flush_item()
         elif tag == "li":
             if self._item is not None:
                 self._flush_item()
@@ -83,7 +87,7 @@ class ListItemExtractor(HTMLParser):
         elif tag in self.HEADINGS and tag == self._heading_tag:
             self._section = clean("".join(self._heading_buf))
             self._heading_tag = None
-        elif tag == "li" and self._item is not None:
+        elif tag in ("li", "ul", "ol") and self._item is not None:  # </li> は HTML5 で省略可
             self._flush_item()
         elif tag in ("strong", "b"):
             self._in_label = False
