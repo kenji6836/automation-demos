@@ -216,6 +216,63 @@ test('buildReport: 前月にあって当月ゼロの商品・担当者は droppe
   assert.match(JSON.stringify(R.formatSlack(r2)), /当月実績なし: 退職者/);
 });
 
+test('buildReport: 月次推移の前月比は暦上の前月と比較し、前月にデータが無ければ null', () => {
+  const { records } = R.normalizeRecords([
+    { 日付: '2026-06-01', 商品名: 'A', 数量: 1, 単価: 100, 担当者: 'x' },
+    { 日付: '2026-08-01', 商品名: 'A', 数量: 1, 単価: 200, 担当者: 'x' },
+    { 日付: '2026-09-01', 商品名: 'A', 数量: 1, 単価: 300, 担当者: 'x' },
+  ]);
+  const report = R.buildReport(records);
+  assert.deepEqual(
+    report.trend.map((m) => [m.month, m.amount, m.momPct]),
+    [
+      ['2026-06', 100, null],
+      ['2026-08', 200, null], // 7月のデータが無いので 6月(+100%)とは比べない
+      ['2026-09', 300, 50],
+    ]
+  );
+  // サマリー側と同じ判定になっている
+  const aug = R.buildReport(records, { targetMonth: '2026-08' });
+  assert.equal(aug.totals.momPct, null);
+  assert.equal(aug.trend[1].momPct, aug.totals.momPct);
+});
+
+test('buildReport: 商品名・担当者・顧客名が constructor / __proto__ / toString でも正しく集計される', () => {
+  const names = ['constructor', '__proto__', 'toString', 'hasOwnProperty'];
+  const rows = names.map((n, i) => ({ 日付: '2026-08-0' + (i + 1), 商品名: n, 数量: 1, 単価: 100 * (i + 1), 担当者: n, 顧客名: n }));
+  rows.push({ 日付: '2026-08-05', 商品名: '普通の商品', 数量: 1, 単価: 50, 担当者: '普通の人', 顧客名: '普通の客' });
+  rows.push({ 日付: '2026-07-01', 商品名: 'constructor', 数量: 1, 単価: 80, 担当者: 'valueOf', 顧客名: 'x' });
+  const { records, skipped } = R.normalizeRecords(rows);
+  assert.equal(skipped.length, 0);
+  const report = R.buildReport(records, { topN: 10 });
+  assert.equal(report.totals.amount, 100 + 200 + 300 + 400 + 50);
+  assert.equal(report.totals.customers, 5);
+  assert.deepEqual(
+    report.products.map((p) => [p.name, p.amount]),
+    [
+      ['hasOwnProperty', 400],
+      ['toString', 300],
+      ['__proto__', 200],
+      ['constructor', 100],
+      ['普通の商品', 50],
+    ]
+  );
+  assert.equal(report.productCount, 5);
+  const ctor = report.products.find((p) => p.name === 'constructor');
+  assert.equal(ctor.prevAmount, 80);
+  assert.equal(ctor.momPct, 25);
+  // 前月のみの担当者 'valueOf' は dropped に出る
+  assert.deepEqual(
+    report.staffDropped.map((s) => s.name),
+    ['valueOf']
+  );
+  const g = R.groupTotals(records, 'product'); // 全期間: constructor は 8月100 + 7月80
+  assert.equal(Object.getPrototypeOf(g), null);
+  assert.equal(g.constructor.amount, 180);
+  assert.equal(g.__proto__.amount, 200);
+  assert.equal(typeof g.toString, 'object', '継承メソッドではなく集計値');
+});
+
 test('buildReport: topN で件数を絞る・全件数は別途返す', () => {
   const report = R.buildReport(fixtureRecords(), { topN: 1 });
   assert.equal(report.products.length, 1);

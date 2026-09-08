@@ -197,7 +197,7 @@ sales.csv ──parseCsv──▶ 行オブジェクト ──normalizeRecords�
 
 ```bash
 cd gas-sales-report
-node --test                          # テスト 30 件（集計ロジック + GAS スタブでの Code.gs スモーク）
+node --test                          # テスト 32 件（集計ロジック + GAS スタブでの Code.gs スモーク）
 node scripts/run-local.js            # 最新月（2026-08）・上位 5 を表示
 node scripts/run-local.js --month 2026-07 --top 3 --only mail   # 月・件数・出力を指定
 node scripts/run-local.js --csv path/to/your.csv                # 自分の CSV で試す

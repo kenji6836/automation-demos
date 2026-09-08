@@ -251,11 +251,19 @@ function sumOf(records) {
 }
 
 /**
+ * 名前をキーにする辞書。通常の {} だと 'constructor' や '__proto__' という商品名が
+ * Object.prototype の継承プロパティと衝突して集計から消えるため、プロトタイプ無しで作る
+ */
+function nameDict() {
+  return Object.create(null);
+}
+
+/**
  * key（'product' | 'staff' | 'category' など）ごとの合計を返す
  * @return {Object<string, {amount:number, qty:number, count:number}>}
  */
 function groupTotals(records, key) {
-  var out = {};
+  var out = nameDict();
   records.forEach(function (r) {
     var name = r[key];
     if (!out[name]) out[name] = { amount: 0, qty: 0, count: 0 };
@@ -324,7 +332,7 @@ function buildReport(records, options) {
 
   if (!records || records.length === 0) throw new Error('集計対象のレコードがありません');
 
-  var months = {};
+  var months = nameDict();
   records.forEach(function (r) {
     months[r.month] = true;
   });
@@ -347,28 +355,24 @@ function buildReport(records, options) {
   var products = rankBy(current, previous, 'product', opt.topN);
   var staff = rankBy(current, previous, 'staff', opt.topN);
 
-  var customers = {};
+  var customers = nameDict();
   current.forEach(function (r) {
     if (r.customer) customers[r.customer] = true;
   });
 
-  // 月次推移（全期間）
-  var trend = [];
-  var lastAmount = null;
-  monthList.forEach(function (m) {
-    var t = sumOf(
-      records.filter(function (r) {
-        return r.month === m;
-      })
-    );
-    trend.push({
+  // 月次推移（データのある全月）。前月比はサマリーと同じく「暦上の前月」との比較で、
+  // 前月にデータが無ければ null（比較不能）。直前のデータ月と比べてしまわないようにする
+  var totalsByMonth = groupTotals(records, 'month');
+  var trend = monthList.map(function (m) {
+    var t = totalsByMonth[m];
+    var prevOfM = totalsByMonth[prevMonthOf(m)];
+    return {
       month: m,
       amount: t.amount,
       qty: t.qty,
       count: t.count,
-      momPct: lastAmount === null ? null : momPct(t.amount, lastAmount),
-    });
-    lastAmount = t.amount;
+      momPct: momPct(t.amount, prevOfM ? prevOfM.amount : 0),
+    };
   });
 
   return {
@@ -652,6 +656,7 @@ if (typeof module !== 'undefined' && module.exports) {
     monthLabel: monthLabel,
     momPct: momPct,
     sumOf: sumOf,
+    nameDict: nameDict,
     groupTotals: groupTotals,
     rankBy: rankBy,
     buildReport: buildReport,
