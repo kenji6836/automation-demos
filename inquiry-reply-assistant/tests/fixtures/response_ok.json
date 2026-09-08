@@ -1,0 +1,20 @@
+{
+  "id": "msg_01FIXTURE",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"summary\": [\"在庫管理システムの Web 化の概算見積を依頼\", \"商品マスタ・入出庫記録・月次レポートが必要\", \"利用者 5〜10 名、年内稼働を希望\"], \"category\": \"見積依頼\", \"urgency\": \"中\", \"urgency_reason\": \"年内稼働の希望はあるが即時対応を要する障害ではないため\", \"reply_draft\": \"高橋様\\n\\nお問い合わせありがとうございます。\\n概算見積のため、数量と希望納期をお知らせください。\\n\\n[[署名]]\"}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 1200,
+    "output_tokens": 400,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  }
+}

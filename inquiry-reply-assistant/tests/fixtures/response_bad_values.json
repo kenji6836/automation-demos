@@ -1,0 +1,15 @@
+{
+  "id": "msg_02FIXTURE",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"summary\": \"1行目\\n2行目\", \"category\": \"営業\", \"urgency\": \"緊急\", \"urgency_reason\": \"理由\", \"reply_draft\": \"本文\\n[[署名]]\"}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {"input_tokens": 10, "output_tokens": 5}
+}

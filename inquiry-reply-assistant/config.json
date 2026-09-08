@@ -1,0 +1,8 @@
+{
+  "company_name": "サンプル株式会社",
+  "department": "カスタマーサポート",
+  "tone": "丁寧で簡潔なビジネス日本語（です・ます調）",
+  "signature_placeholder": "[[署名]]",
+  "model": "claude-haiku-4-5",
+  "max_tokens": 2048
+}
