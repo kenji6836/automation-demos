@@ -404,13 +404,24 @@ class EndToEndTests(unittest.TestCase):
             ra.parse_response({"stop_reason": "end_turn", "content": [{"type": "text", "text": "顧客の秘密 not json"}]})
         self.assertNotIn("顧客の秘密", str(cm.exception))
 
-    def test_broken_config_exits_2(self):
+    def test_broken_config_exits_1(self):
         bad = os.path.join(self.tmp, "bad.json")
         with open(bad, "w", encoding="utf-8") as f:
             f.write("[1, 2]")
         code, out, err = self.run_main(["--in", self.inputs[0], "--out", self.out, "--config", bad],
                                        env={"ANTHROPIC_API_KEY": "sk-test"})
-        self.assertEqual(code, 2)
+        self.assertEqual(code, 1)
+        self.assertIn("設定の読み込みに失敗", err)
+
+    def test_missing_explicit_config_exits_1_without_fallback(self):
+        # --config を明示したのにパスが無い場合は既定設定に黙って戻さず、エラー終了する（R2 指摘）
+        missing = os.path.join(self.tmp, "nope.json")
+        with mock.patch.object(ra, "_urlopen", side_effect=AssertionError("network must not be used")):
+            code, out, err = self.run_main(["--in", self.inputs[0], "--out", self.out, "--config", missing],
+                                           env={"ANTHROPIC_API_KEY": "sk-test"})
+        self.assertEqual(code, 1)
+        self.assertIn("nope.json", err)
+        self.assertFalse(os.path.exists(self.out))
 
 
 if __name__ == "__main__":

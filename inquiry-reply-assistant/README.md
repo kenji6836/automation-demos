@@ -122,7 +122,7 @@ python3 reply_assistant.py --keychain apiguard.ANTHROPIC_API_KEY --in inquiries/
 - 設定: `config.json`（会社名・部署・口調・署名プレースホルダ・モデル・max_tokens）。別ファイルは `--config` で指定。
 - プロンプト: `prompts/system.txt`（役割とルール）・`prompts/user.txt`（本文の渡し方）。`$company_name` などのプレースホルダに `config.json` の値が入ります。
 - モデル切替: `--model claude-sonnet-5`（または `config.json` の `model`）。既定はコスト最優先の `claude-haiku-4-5`。文面の質を上げたい場合は `claude-sonnet-5`（Haiku の約 2 倍の単価）、さらに上は `claude-opus-5`（約 5 倍）。`reply_assistant.py` の `PRICES_USD_PER_MTOK` に単価を持っています。
-- 終了コード: 0=全件成功／1=一部失敗（失敗した通は標準エラーに理由）／2=設定・キーの問題で未実行。429/500/529 と接続エラーは最大 3 回リトライ、401/403 は即中断。
+- 終了コード: 0=全件成功／1=一部失敗（失敗した通は標準エラーに理由）または明示した `--config` の読み込み失敗／2=API キー未設定・出力先の衝突で未実行。429/500/529 と接続エラーは最大 3 回リトライ、401/403 は即中断。
 - テスト: `python3 -m unittest discover -s tests -v`（ネットワーク不使用・27 件）。
 
 ### B. GAS 版（Gmail の未読メール → 下書き自動作成）

@@ -438,8 +438,8 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     p.add_argument("--in", dest="inputs", nargs="+", required=True, metavar="FILE",
                    help="問い合わせテキスト（複数可。シェルのグロブ展開 inquiries/*.txt を想定）")
     p.add_argument("--out", dest="out_dir", required=True, metavar="DIR", help="出力先ディレクトリ")
-    p.add_argument("--config", default=os.path.join(HERE, "config.json"),
-                   help="会社名・口調などの設定 JSON（既定: 同梱 config.json）")
+    p.add_argument("--config", default=None,
+                   help="会社名・口調などの設定 JSON（既定: 同梱 config.json。無ければ組み込みの既定値）")
     p.add_argument("--prompts", dest="prompts_dir", default=None, help="プロンプトのディレクトリ（既定: 同梱 prompts/）")
     p.add_argument("--model", default=None, help="モデル ID の上書き（既定: config.model → %s）" % DEFAULT_MODEL)
     p.add_argument("--jpy-rate", type=float, default=DEFAULT_JPY_PER_USD, help="USD→JPY の概算レート（既定 %.0f）" % DEFAULT_JPY_PER_USD)
@@ -453,10 +453,14 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 def main(argv: Optional[List[str]] = None) -> int:
     args = parse_args(argv)
     try:
-        cfg = load_config(args.config if os.path.exists(args.config) else None)
+        if args.config:
+            cfg = load_config(args.config)  # 明示指定は存在しない・壊れているならエラー（黙って既定に戻さない）
+        else:
+            default_path = os.path.join(HERE, "config.json")
+            cfg = load_config(default_path if os.path.exists(default_path) else None)
     except (OSError, ValueError) as e:
-        sys.stderr.write("設定の読み込みに失敗: %s\n" % e)
-        return 2
+        sys.stderr.write("設定の読み込みに失敗（%s）: %s\n" % (args.config or "同梱 config.json", e))
+        return 1
     model = args.model or cfg.get("model") or DEFAULT_MODEL
 
     if args.dry_run:
