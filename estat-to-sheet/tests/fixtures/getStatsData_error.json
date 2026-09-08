@@ -1,0 +1,14 @@
+{
+  "GET_STATS_DATA": {
+    "RESULT": {
+      "STATUS": 100,
+      "ERROR_MSG": "アプリケーションIDが不正です。",
+      "DATE": "2026-09-08T10:00:00.000+09:00"
+    },
+    "PARAMETER": {
+      "LANG": "J",
+      "STATS_DATA_ID": "0003410379",
+      "DATA_FORMAT": "J"
+    }
+  }
+}

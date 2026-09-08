@@ -1,0 +1,179 @@
+{
+  "GET_STATS_DATA": {
+    "RESULT": {
+      "STATUS": 0,
+      "ERROR_MSG": "正常に終了しました。",
+      "DATE": "2026-09-08T10:00:00.000+09:00"
+    },
+    "PARAMETER": {
+      "LANG": "J",
+      "STATS_DATA_ID": "0003410379",
+      "DATA_FORMAT": "J",
+      "START_POSITION": 1,
+      "LIMIT": 5,
+      "METAGET_FLG": "Y"
+    },
+    "STATISTICAL_DATA": {
+      "RESULT_INF": {
+        "TOTAL_NUMBER": 9,
+        "FROM_NUMBER": 1,
+        "TO_NUMBER": 5,
+        "NEXT_KEY": 6
+      },
+      "TABLE_INF": {
+        "@id": "0003410379",
+        "STAT_NAME": {
+          "@code": "00200521",
+          "$": "国勢調査"
+        },
+        "GOV_ORG": {
+          "@code": "00200",
+          "$": "総務省"
+        },
+        "STATISTICS_NAME": "令和2年国勢調査 人口等基本集計（ダミー）",
+        "TITLE": {
+          "@no": "1",
+          "$": "男女別人口 - 全国，都道府県（ダミー）"
+        },
+        "CYCLE": "-",
+        "SURVEY_DATE": "202010",
+        "OPEN_DATE": "2021-06-25",
+        "SMALL_AREA": 0,
+        "COLLECT_AREA": "該当なし",
+        "MAIN_CATEGORY": {
+          "@code": "02",
+          "$": "人口・世帯"
+        },
+        "SUB_CATEGORY": {
+          "@code": "01",
+          "$": "人口"
+        },
+        "OVERALL_TOTAL_NUMBER": 9,
+        "UPDATED_DATE": "2021-06-25"
+      },
+      "CLASS_INF": {
+        "CLASS_OBJ": [
+          {
+            "@id": "tab",
+            "@name": "表章項目",
+            "CLASS": {
+              "@code": "020",
+              "@name": "人口",
+              "@level": "",
+              "@unit": "人"
+            }
+          },
+          {
+            "@id": "cat01",
+            "@name": "男女",
+            "CLASS": [
+              {
+                "@code": "0",
+                "@name": "総数",
+                "@level": "1"
+              },
+              {
+                "@code": "1",
+                "@name": "男",
+                "@level": "2",
+                "@parentCode": "0"
+              },
+              {
+                "@code": "2",
+                "@name": "女",
+                "@level": "2",
+                "@parentCode": "0"
+              }
+            ]
+          },
+          {
+            "@id": "area",
+            "@name": "地域",
+            "CLASS": [
+              {
+                "@code": "00000",
+                "@name": "全国",
+                "@level": "1"
+              },
+              {
+                "@code": "13000",
+                "@name": "東京都",
+                "@level": "2",
+                "@parentCode": "00000"
+              },
+              {
+                "@code": "27000",
+                "@name": "大阪府",
+                "@level": "2",
+                "@parentCode": "00000"
+              }
+            ]
+          },
+          {
+            "@id": "time",
+            "@name": "時間軸（年次）",
+            "CLASS": {
+              "@code": "2020000000",
+              "@name": "2020年",
+              "@level": "1"
+            }
+          }
+        ]
+      },
+      "DATA_INF": {
+        "NOTE": [
+          {
+            "@char": "-",
+            "$": "該当数字がないもの"
+          },
+          {
+            "@char": "***",
+            "$": "秘匿数字"
+          }
+        ],
+        "VALUE": [
+          {
+            "@tab": "020",
+            "@cat01": "0",
+            "@area": "00000",
+            "@time": "2020000000",
+            "@unit": "人",
+            "$": "126100000"
+          },
+          {
+            "@tab": "020",
+            "@cat01": "1",
+            "@area": "00000",
+            "@time": "2020000000",
+            "@unit": "人",
+            "$": "61300000"
+          },
+          {
+            "@tab": "020",
+            "@cat01": "2",
+            "@area": "00000",
+            "@time": "2020000000",
+            "@unit": "人",
+            "$": "64800000"
+          },
+          {
+            "@tab": "020",
+            "@cat01": "0",
+            "@area": "13000",
+            "@time": "2020000000",
+            "@unit": "人",
+            "$": "14000000"
+          },
+          {
+            "@tab": "020",
+            "@cat01": "1",
+            "@area": "13000",
+            "@time": "2020000000",
+            "@unit": "人",
+            "$": "6900000"
+          }
+        ]
+      }
+    }
+  }
+}
