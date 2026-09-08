@@ -1,0 +1,5 @@
+# clasp push の対象は GAS で動くファイルだけにする
+**/**
+!Code.gs
+!src/report.js
+!appsscript.json

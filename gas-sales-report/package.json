@@ -1,0 +1,13 @@
+{
+  "name": "gas-sales-report",
+  "private": true,
+  "description": "売上 CSV → Google スプレッドシート月次集計 → メール/Slack 通知（Google Apps Script）",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node scripts/run-local.js",
+    "generate": "node scripts/generate-sales.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
