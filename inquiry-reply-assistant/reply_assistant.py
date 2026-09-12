@@ -16,6 +16,7 @@ inquiry-reply-assistant — 問い合わせメール → 要約・分類・緊�
     _usage.json   実行全体のトークン合計と概算費用
 """
 import argparse
+import copy
 import datetime as _dt
 import json
 import os
@@ -100,6 +101,14 @@ def load_config(path: Optional[str]) -> Dict[str, Any]:
             raise ValueError("config はオブジェクト（{...}）である必要があります: %s" % path)
         cfg.update(user_cfg)
     return cfg
+
+
+def get_categories(cfg: Optional[Dict[str, Any]] = None) -> List[str]:
+    """設定に非空の文字列配列があれば分類一覧に使い、なければ既定値を返す。"""
+    categories = (cfg or {}).get("categories")
+    if isinstance(categories, list) and categories and all(isinstance(c, str) for c in categories):
+        return list(categories)
+    return list(CATEGORIES)
 
 
 def load_prompt(name: str, prompts_dir: Optional[str] = None) -> str:
@@ -195,12 +204,14 @@ def resolve_api_key(keychain_service: Optional[str] = None) -> Optional[str]:
 
 
 def build_request_body(cfg: Dict[str, Any], system_prompt: str, user_prompt: str, model: Optional[str] = None) -> Dict[str, Any]:
+    schema = copy.deepcopy(OUTPUT_SCHEMA)
+    schema["properties"]["category"]["enum"] = get_categories(cfg)
     return {
         "model": model or cfg.get("model") or DEFAULT_MODEL,
         "max_tokens": int(cfg.get("max_tokens") or DEFAULT_MAX_TOKENS),
         "system": system_prompt,
         "messages": [{"role": "user", "content": user_prompt}],
-        "output_config": {"format": {"type": "json_schema", "schema": OUTPUT_SCHEMA}},
+        "output_config": {"format": {"type": "json_schema", "schema": schema}},
     }
 
 
@@ -262,7 +273,7 @@ def _retry_wait(retry_after: Optional[str], attempt: int) -> float:
 # ---------------------------------------------------------------- 応答の整形
 
 
-def parse_response(resp: Dict[str, Any]) -> Dict[str, Any]:
+def parse_response(resp: Dict[str, Any], cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Messages API の応答から構造化結果を取り出し、検証・正規化する。"""
     stop = resp.get("stop_reason")
     if stop == "refusal":
@@ -290,9 +301,10 @@ def parse_response(resp: Dict[str, Any]) -> Dict[str, Any]:
     while len(summary) < 3:
         summary.append("")
 
+    categories = get_categories(cfg)
     category = str(data["category"]).strip()
-    if category not in CATEGORIES:
-        category = "その他"
+    if category not in categories:
+        category = categories[-1]
     urgency = str(data["urgency"]).strip()
     if urgency not in URGENCIES:
         urgency = "中"
@@ -413,7 +425,7 @@ def process_inquiry(path: str, cfg: Dict[str, Any], api_key: str, model: Optiona
     resp = call_messages_api(body, api_key)
     usage = extract_usage(resp)  # 解釈に失敗しても課金は発生しているので先に取り出す
     try:
-        parsed = parse_response(resp)
+        parsed = parse_response(resp, cfg)
     except ApiError as e:
         e.usage = usage
         raise
