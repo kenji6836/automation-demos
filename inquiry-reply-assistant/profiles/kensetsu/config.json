@@ -1,0 +1,9 @@
+{
+  "company_name": "サンプル工務店",
+  "department": "見積・お客様窓口",
+  "tone": "丁寧で簡潔なビジネス日本語（です・ます調）",
+  "signature_placeholder": "[[署名]]",
+  "model": "claude-haiku-4-5",
+  "max_tokens": 2048,
+  "categories": ["見積依頼", "施工中の連絡", "その他"]
+}

@@ -193,3 +193,32 @@ inquiry-reply-assistant/
 - Messages API の呼び方（`POST /v1/messages`・`x-api-key`・`anthropic-version: 2023-06-01`・`output_config.format` の JSON Schema）: 同スキル `curl/examples.md`・`shared/tool-use-concepts.md`
 - Anthropic のデータ利用方針: https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training
 - Apps Script Gmail サービスのスコープ: https://developers.google.com/apps-script/reference/gmail/gmail-app ・ https://developers.google.com/apps-script/reference/gmail/gmail-message
+
+## 建設/工務店 向けプロファイル
+
+建設・工務店・リフォーム向けに、見積依頼や施工中の連絡を仕分けし、返信下書きを作る CLI 用デモです。
+見積依頼には「概算は現地確認後にお伝えする」旨と確認事項を含め、金額の断定や工期の確約を避けます。
+
+`inquiry-reply-assistant/` で実行します。まずはプロンプトを確認できます。
+
+```bash
+python3 reply_assistant.py \
+  --in inquiries/kensetsu/*.txt \
+  --out drafts/kensetsu/ \
+  --config profiles/kensetsu/config.json \
+  --prompts profiles/kensetsu/prompts \
+  --dry-run
+```
+
+下書きを生成する場合は `--dry-run` を外します。`--dry-run` はプロンプトを表示して終了し、出力ファイルは作りません。
+分類一覧は設定の `categories` で指定し、一覧外の分類は最後の要素に置き換えます。未指定時は従来の「見積依頼・不具合・その他」です。
+
+| ファイル（`inquiries/kensetsu/`） | 想定分類 | 想定緊急度 |
+|---|---|---|
+| `01_reform_estimate.txt` | 見積依頼 | 中 |
+| `02_gaikou_estimate.txt` | 見積依頼 | 中 |
+| `03_shinchiku_soudan.txt` | 見積依頼 | 低 |
+| `04_koji_renraku.txt` | 施工中の連絡 | 高 |
+| `05_shizai_eigyo.txt` | その他 | 低 |
+
+同梱5通は人名・社名・所在地を含めて架空の内容で、メールアドレスはすべて `example.*` ドメインです。写真添付の記載も架空で、画像ファイルは同梱していません。表は想定結果です。**送信は人が最終確認**してから行ってください。

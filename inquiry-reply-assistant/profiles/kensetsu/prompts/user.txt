@@ -1,0 +1,5 @@
+以下の問い合わせメールを処理してください。
+
+<inquiry>
+$inquiry
+</inquiry>
