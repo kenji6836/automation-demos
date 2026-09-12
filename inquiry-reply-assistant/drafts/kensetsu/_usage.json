@@ -1,0 +1,17 @@
+{
+  "model": "claude-haiku-4-5",
+  "files_ok": 5,
+  "files_failed": 0,
+  "api_calls": 5,
+  "usage": {
+    "input_tokens": 8798,
+    "output_tokens": 2556,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  },
+  "cost_usd": 0.021578,
+  "cost_jpy": 3.24,
+  "jpy_per_usd": 150.0,
+  "note": "費用は input/output トークン × 公開単価の概算。為替レートは固定の概算値。",
+  "generated_at": "2026-09-12T23:55:31+09:00"
+}
