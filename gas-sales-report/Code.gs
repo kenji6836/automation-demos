@@ -128,7 +128,14 @@ function writeReportSheet_(rows) {
   sheet.clear();
   var width = rows[0].length;
   var range = sheet.getRange(1, 1, rows.length, width);
-  range.setValues(rows).setNumberFormat('#,##0'); // 表示形式は数値セルにだけ効く（文字列セルはそのまま表示される）
+  // 先にセル書式を敷く: 数値は #,##0、文字列は '@'（書式なしテキスト）。
+  // setValues は "2026-08" を日付、"+4.2%" を 0.042 に自動変換するため、文字列セルは '@' で保護する
+  range.setNumberFormats(rows.map(function (r) {
+    return r.map(function (v) {
+      return typeof v === 'number' ? '#,##0' : '@';
+    });
+  }));
+  range.setValues(rows);
   sheet.getRange(1, 1).setFontSize(14).setFontWeight('bold');
   rows.forEach(function (r, i) {
     if (String(r[0]).charAt(0) === '■') {
@@ -139,6 +146,11 @@ function writeReportSheet_(rows) {
   });
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, width);
+  // autoResizeColumns は全角文字の幅を過小評価して商品名などが切れるため、表示幅（全角=2）から列幅を下支えする（タイトル行は除く）
+  for (var c = 0; c < width; c++) {
+    var maxW = rows.slice(1).reduce(function (m, r) { return Math.max(m, displayWidth(r[c])); }, 0);
+    sheet.setColumnWidth(c + 1, Math.max(sheet.getColumnWidth(c + 1), 14 + maxW * 7));
+  }
   Logger.log('「%s」シートに %s 行を書き込みました', REPORT_CONFIG.reportSheetName, rows.length);
 }
 

@@ -19,7 +19,7 @@ const SALES_CSV = fs.readFileSync(path.join(ROOT, 'sales.csv'), 'utf8');
 /** チェーン可能なレンジのスタブ */
 function makeRange(calls) {
   const range = {};
-  ['setValues', 'setNumberFormat', 'setFontSize', 'setFontWeight', 'setBackground', 'setBorder'].forEach((m) => {
+  ['setValues', 'setNumberFormat', 'setNumberFormats', 'setFontSize', 'setFontWeight', 'setBackground', 'setBorder'].forEach((m) => {
     range[m] = (...args) => {
       calls.push([m, ...args]);
       return range;
@@ -42,6 +42,8 @@ function makeSheet(name, values) {
     },
     setFrozenRows: (n) => calls.push(['setFrozenRows', n]),
     autoResizeColumns: (c, n) => calls.push(['autoResizeColumns', c, n]),
+    getColumnWidth: () => 100,
+    setColumnWidth: (c, w) => calls.push(['setColumnWidth', c, w]),
   };
 }
 
@@ -124,6 +126,21 @@ test('previewReport: 「売上データ」シートから集計し、レポー�
   const rows = setValues[1];
   assert.equal(rows[0][0], '月次売上レポート 2026年8月');
   assert.ok(rows.every((r) => r.length === rows[0].length), '矩形');
+  // 文字列セル（"2026-08"・"+4.2%"）の自動変換を防ぐため、setValues より前に '@' 書式を敷く
+  const fmtIdx = report.calls.findIndex((c) => c[0] === 'setNumberFormats');
+  const valIdx = report.calls.findIndex((c) => c[0] === 'setValues');
+  assert.ok(fmtIdx >= 0 && fmtIdx < valIdx, 'setNumberFormats が setValues より先');
+  const formats = report.calls[fmtIdx][1];
+  assert.equal(formats.length, rows.length);
+  rows.forEach((r, i) => r.forEach((v, j) => {
+    assert.equal(formats[i][j], typeof v === 'number' ? '#,##0' : '@', `[${i}][${j}] ${JSON.stringify(v)}`);
+  }));
+  assert.equal(formats[1][1], '@', '集計対象の月 "2026-08" は文字列書式');
+  // 全角の商品名が切れないよう、表示幅から列幅を下支えする（列 2 = 商品名/担当者）
+  const widths = report.calls.filter((c) => c[0] === 'setColumnWidth');
+  assert.equal(widths.length, rows[0].length, '全列に setColumnWidth');
+  const nameCol = widths.find((c) => c[1] === 2);
+  assert.ok(nameCol[2] >= 14 + 20 * 7, `商品名列は "コピー用紙 A4 5000枚"（表示幅 20）が収まる幅: ${nameCol[2]}`);
   assert.deepEqual(report.calls[0], ['clear']);
   assert.ok(report.calls.some((c) => c[0] === 'setFrozenRows'));
   assert.equal(gas.state.mails.length, 0);
